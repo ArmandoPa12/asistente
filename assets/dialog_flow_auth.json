@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "agente-pedido-uvgc",
+  "private_key_id": "7a1cbdb3d5ea87b0dcbdbe65001e5e9c12f0bc56",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDU5IWWIRP5BAzJ\nx15O64OiY5iab6+ErroWQwPRpL1YsKs9jqvCCCAVny4of20J6/FChuUxSMJuTHYa\nplyhDnzVAgElYDK1lu694aWau7VimRardtxs0eszLABNoMS1DLgq6kJj2udyHJKw\n0Jq9q4ozpOM0quG5ItxYWDmQg3/dcV2PBAahZ7N1H+38JKB7lFD21yIPKIRn+iFa\njX8PMoYzzYayOeYE2j8Hi2citFJ2QlWloNfPcpFIhkMZxSlPoIjmpIuamGRxK/hK\nr7dlK7BaExuLHiaxV31P3ulE8nvDG0MJYLj93lz6dtkEI9AtbWTa4HbyaMlVTIWn\nTKvjpy67AgMBAAECggEATrTRomhGPwi9RZf8iMbPWqjhkS77P91tFK/f6JC0I+bk\n2BQ38bsZSYUZBoXdpQ5imorOjwLsRuTjwQSCOFTn18Qu8kd3V+UeDHsww1zkOTiJ\nxghig6S0BK4eypRGRP0X1V3X/5y9dlWT8eSdYMPbiy5JhX4rh0uZFNxBI+lJy27h\nz+s7OdVC/MzA2qgD7MZmeWdqzhc8fsfzE0aGaVwXkG1cgW2Oi8ExtVRuMeewRpuG\ndpvo/zjgLojw64oEp2pw1u+Eabs3k8uedD6wSVGrtMBVwejqxc3Y1auzmOvgwh+d\nmjsItEFDIJarGK3qd8ArIk6UfCQJwXThn6CaM2WwOQKBgQD8/ijKwVAySSYR87/F\nIeteGRWsyl+X360+loUdCR+WPta2GTbZkNgz/Dx452Rv5ABewpRTDmqhog38iBL+\n/nctT7yJJxIlklET67S925NpDxfaixmP0tOL8SAsLZGXywOEB8fdOX3Df0ywfJYn\nDrz45zNzVszbs57K70nAzsYodQKBgQDXbFcgpX+/yMwPaQJuBxAyEAoriOm8PFkq\nMvfEIP2Nh88hVWZ+pUTLFWL9VlnuZuXEGyOZOrADb47MGGPcF+zi/1iQW8wiq45G\nxbCC96jl92UDQCqpVKf8ngSuhmZAMsrsue7KjWHn2X+ugDXATgyUCJ7Q14XDHrKW\nvJg3L/iUbwKBgGl+kgP6GDbfycAypATP4BWc4CztNm9eFh/DJD63TzSXf3Dvkq+m\ndoE27QB9fKQrrvvUp4T6vfwoVyy2kTVDZu6+ESAf6rFAEg78eqGwrgdhA9Fdr4sJ\nnqz8Hy5M0ik5vn2PwQe+sXKT4qa1TOd8fdBMmGfACiyS+eQlY9vCXV8BAoGAUgS1\nx4A7e1GAH/3jJvEZgXYJ6TlfhIOVjzOIkevdnZ0vh4l0VJOn9YpW/g16gAI9SMTs\ncNKfYS+ANsSygIG7d1Gw7oWE205mBRwPcE3KyIPAudQcagwJSW0Aa1JQa/Dqweao\nvAXIWPW+XzoBPQ56S4JctTbZfsiZRjrX2WsyQZECgYBagRFLo0jtpUYTBSEQcIwB\n5NggZHDDa9j12B1spOMJxfQKmxQGNpJm17+bdjJx9Ifqmmh32IdGY5T0pL+D+TCn\nVYA8tEPKJVD/ZFicdLcOu3IQ8j+bTE5nH34pIVa9mUkUtQkEMWJNpIN8ttYI56aJ\nRaK31NivO6ley0KmpEtUAA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "agente-admin@agente-pedido-uvgc.iam.gserviceaccount.com",
+  "client_id": "111568588630705748651",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/agente-admin%40agente-pedido-uvgc.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
