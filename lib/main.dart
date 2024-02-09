@@ -1,5 +1,7 @@
 
 
+import 'dart:async';
+
 import 'package:dialog_flowtter/dialog_flowtter.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -7,7 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 
 import 'package:flutter_tts/flutter_tts.dart';
-
+import 'pedido.dart';
 //dialog
 import 'package:dialogflow_flutter/dialogflowFlutter.dart';
 import 'package:dialogflow_flutter/googleAuth.dart';
@@ -16,9 +18,15 @@ import 'package:dialogflow_flutter/message.dart';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 
+
+
 void main() {
   runApp(const MyApp());
 }
+
+int error = 0;
+int mainError = 0;
+bool ayuda = false;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -34,167 +42,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      //home: const Speech(),
+      home: const Speech(),
       //home: const Textt(),
-      home : DialogFlowScreen()
+      //home : DialogFlowScreen()
     );
-  }
-}
-
-
-class DialogFlowScreen extends StatefulWidget {
-  const DialogFlowScreen({super.key});
-
-  @override
-  State<DialogFlowScreen> createState() => _DialogFlowScreenState();
-}
-
-class _DialogFlowScreenState extends State<DialogFlowScreen> {
-  final messageController = TextEditingController();
-  List<Map> messages = [];
-
-  late DialogFlowtter dialogFlowtter;
-  List<Map<String,dynamic>> mensaje = [];
-  String mensa = "---";
-
-  @override
-  void initState() {
-    DialogFlowtter.fromFile().then((instance) => dialogFlowtter = instance);
-
-    super.initState();
-  }
-
-  sendMessage(String text)async{
-    DetectIntentResponse response = await dialogFlowtter.detectIntent(
-        queryInput: QueryInput(text: TextInput(text: text)));
-
-    String? textResponse = response.text;
-
-    if (textResponse == null){
-      print("nulo");
-    }else{
-      setState(() {
-        mensa = textResponse;
-        List<String> words = splitSentence(mensa);
-        processWords(words);
-        print("words------"+words.toString());
-        print(response.message);
-        mensaje.add({"message":mensa});
-      });
-      print(textResponse);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('chatBot'),
-      ),
-
-      body: Container(
-        child: Column(
-          children: [
-
-            TextField(
-              controller: messageController,
-              style: TextStyle(
-                color: Colors.black
-              ),
-            ),
-            TextButton(
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              ),
-              onPressed: () {
-                if(messageController.text.isEmpty){
-                  //print("mensaje vacio");
-                }else{
-                  setState(() {
-                    messages.insert(0, {"data":1, "message":messageController.text });
-                  });
-
-
-                  //response(messageController.text);
-                  sendMessage(messageController.text);
-                  //messageController.clear();
-
-                  //print(messages);
-                }
-
-              },
-              child: Text('Enviar intent'),
-            ),
-            TextButton(
-              style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-              ),
-              onPressed: () {
-                    _test();
-              },
-              child: Text('prueb datos'),
-            ),
-            Text(mensa),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-void _test(){
-  List<String> words = splitSentence("A su pedido se le agrego un pollo agridulce, Desea alguna salsa?");
-  processWords(words);
-  //print("words------"+words.toString());
-}
-
-
-//auxiliares
-List<String> splitSentence(String sentence) {
-  List<String> words = sentence.split(' ');
-  words.removeWhere((word) => word.isEmpty);
-  print(words.toString());
-  return words;
-}
-
-void processWords(List<String> words) {
-  bool isPedido = false;
-  bool isAgrego = false;
-  bool isQuito = false;
-
-  for (int i = 0; i < words.length; i++) {
-    if (words[i].toLowerCase() == "pedido" || words[i].toLowerCase() == "pedido,") {
-      isPedido = true;
-
-      // Verificar si hay "agrego" o "quito" después de "pedido"
-      for (int j = i + 1; j < words.length; j++) {
-        if (words[j].toLowerCase() == "agrego") {
-          isAgrego = true;
-          break;
-        } else if (words[j].toLowerCase() == "quito") {
-          isQuito = true;
-          break;
-        }
-      }
-
-      // No necesitamos seguir buscando después de encontrar "pedido"
-      break;
-    }
-  }
-
-  if (isPedido) {
-    if (isAgrego) {
-      print("El pedido se está agregando.");
-      // Llamar a la función correspondiente para agregar el pedido
-    } else if (isQuito) {
-      print("El pedido se está quitando.");
-      // Llamar a la función correspondiente para quitar el pedido
-    } else {
-      print("El pedido no tiene acciones específicas.");
-      // Lógica adicional si es necesario
-    }
-  } else {
-    print("No se encontró la palabra 'pedido' en la lista.");
   }
 }
 
@@ -209,13 +60,24 @@ class Speech extends StatefulWidget {
 }
 
 class _SpeechState extends State<Speech> {
+
+
   //fluter
   ScrollController _controller = ScrollController();
+
+  List<Map<String,String>> _total = [];
+
+  Map<String,String> _pedido = {
+    "pollo":"",
+    "presa":"",
+    "salsa":"",
+    "cantidad":""};
+  late Map<String, String> objeto;
 
 
   //instancia de librerias
   SpeechToText _speech = SpeechToText();
-  final FlutterTts flutterTts = FlutterTts();
+
 
   //stt.SpeechToText _speech;
   bool _isListening = false;
@@ -225,6 +87,7 @@ class _SpeechState extends State<Speech> {
   //dialogflow
   late DialogFlowtter dialogFlowtter;
   List<Map<String,dynamic>> mensaje = [];
+
 
 
   @override
@@ -243,58 +106,33 @@ class _SpeechState extends State<Speech> {
           if (val == 'done'){
             DetectIntentResponse response = await dialogFlowtter.detectIntent(queryInput: QueryInput(text: TextInput(text: _text)));
             String? textResponse = response.text;
-            textResponse == null ? textResponse="error de conexion" : mensaje.add({"message": textResponse});
+            if (textResponse == null){ textResponse="error de conexion";}
 
-            print("contr"+_controller.position.maxScrollExtent.toString());
 
-            //listViewScrollController.animateTo(listViewScrollController.position.maxScrollExtent)
-            /*if (textResponse == null){
-              return;
-            }else{
-              mensaje.add({"message": textResponse});
+            //parametros
+            if (textResponse.length > 0){
+              logic(response.props[1].toString(), textResponse);
+            }
 
-            }*/
-            flutterTts.setLanguage('es-ES');
-            flutterTts.speak(textResponse);
+
+            //print(_pedido);
 
             setState(() {
               _isListening = false;
               _controller.jumpTo(_controller.position.maxScrollExtent);
             });
 
-            /*setState(() async{
-              print("-----------user: " + _text);
-              DetectIntentResponse response = await dialogFlowtter.detectIntent(queryInput: QueryInput(text: TextInput(text: _text)));
-              String? textResponse = response.text;
-              if (textResponse == null){
-                return;
-              }else{
-                mensaje.add({"message": textResponse});
-                //print(mensaje);
-              }
-                _text = "";
-                _isListening = false;
-                flutterTts.setLanguage('es-ES');
-                flutterTts.speak(textResponse);
-              }
-            );*/
 
           }
-          print('onStatus: $val');
         },
-        //onStatus: (val) => print('onStatus: $val'),
         onError: (val) => print('onError: $val'),
 
       );
       if (available) {
-        //_localeNames = await _speech.locales();
-        //print(_localeNames.toString());
         setState(() => _isListening = true);
         _speech.listen(
           onResult: (val) => setState(() {
             _text = val.recognizedWords;
-
-
             if (val.hasConfidenceRating && val.confidence > 0) {
               _confidence = val.confidence;
             }
@@ -311,40 +149,209 @@ class _SpeechState extends State<Speech> {
   }
 
 
+  void logic(String texto, String respuesta)async{
+
+    String cadObj = extraerObjetoEntreLlaves(texto);
+    objeto = convertirCadenaAObjeto(cadObj);
+    //parametros
+    if(objeto.isNotEmpty){
+      if (objeto["tipoPollo"]?.isNotEmpty ?? false){
+        print(objeto["tipoPollo"]);
+        _pedido["pollo"] = objeto["tipoPollo"]!;
+      }
+      if (objeto["cantidad"]?.isNotEmpty ?? false){
+        print(objeto["cantidad"]);
+        _pedido["cantidad"] = objeto["cantidad"]!;
+
+      }
+      if (objeto["tipoPresa"]?.isNotEmpty ?? false){
+        print(objeto["tipoPresa"]);
+        _pedido["presa"] = objeto["tipoPresa"]!;
+
+      }
+      if (objeto["tipoSalsa"]?.isNotEmpty ?? false){
+        print(objeto["tipoSalsa"]);
+        _pedido["salsa"] = objeto["tipoSalsa"]!;
+
+      }
+
+
+      /*if (objeto["tipoPago"]?.isNotEmpty ?? false){
+        print(objeto["tipoPago"]);
+        _pedido["pago"] = objeto["tipoPago"]!;
+
+      }*/
+    }
+
+
+
+    if (respuesta.toLowerCase().contains("ups")){
+      error = error+1;
+    }
+
+    print(" mi voz $_text");
+    print('------------- $respuesta');
+    print('---- todoValor? ${todosTienenValor(_pedido)}');
+
+    if(error == 2){
+      ayuda=true;
+    }else{
+      if (respuesta.toLowerCase().contains("nuevo")) {
+        _total.add(_pedido);
+        _pedido = {"pollo": ""};
+        String x = "claro, que pollo le agrego a su pedido?";
+        hablar(x);
+        mensaje.add({"message": x});
+      }else if(respuesta.toLowerCase().contains("usted")){
+        int e = obtenerError(_pedido);
+        if(e == -1){
+          _total.add(_pedido);
+          _pedido = {"pollo": ""};
+          String pedidoFinal = resumen(_total);
+          String x = "aqui esta su resumen";
+          hablar(pedidoFinal);
+          mensaje.add({"message": pedidoFinal});
+        }else{
+          errorHandler(e);
+        }
+
+      }else {
+        if(respuesta.toLowerCase().contains("agrego")){
+          print("-------agrego $_total");
+          int p = obtenerError(_pedido);
+          print("-------agrego $p");
+
+
+          if (p == -1){
+            respuesta = respuesta + "\nDesea agregar otro pollo a su pedido?";
+          }else {
+            String add = faltantePedido(p);
+            respuesta = respuesta + "\n $add";
+          }
+          hablar(respuesta);
+          mensaje.add({"message": respuesta});
+        }else {
+          hablar(respuesta);
+          mensaje.add({"message": respuesta});
+        }
+      }
+    }
+
+
+
+
+    if (ayuda){
+      error = 0;
+      ayuda = !ayuda;
+      int tipoError = obtenerError(_pedido);
+      errorHandler(tipoError);
+    }
+
+
+
+  }
+
+  int obtenerError(Map<String,String> __pedido){
+
+    print("error: -----$__pedido");
+    if(__pedido["pollo"]?.isEmpty ?? false){
+      return 0;
+    }else if(__pedido["cantidad"]?.isEmpty ?? false) {
+      return 1;
+    }else if(__pedido["presa"]?.isEmpty ?? false) {
+      return 2;
+    }else if(__pedido["salsa"]?.isEmpty ?? false){
+      return 3;
+    }else{
+      return -1;
+    }
+  }
+
+  void errorHandler(int e){
+    if (e == 0){
+      String x = "Aun no escogió el tipo de pollo que desea?";
+      hablar(x);
+      mensaje.add({"message": x});
+    }else if(e==1){
+      String x =("Aun le falta la cantidad de pollo que desea comer");
+      hablar(x);
+      mensaje.add({"message": x});
+    }else if(e==2){
+      String x =("Aun le falta escoger la, que presa desea comer hoy?");
+      hablar(x);
+      mensaje.add({"message": x});
+    }else if(e==3){
+      String x = ("Aun le falta escoger la salsa");
+      hablar(x);
+      mensaje.add({"message": x});
+    }else if(e==4){
+      String x =("Debe escoger un metodo de pago");
+      hablar(x);
+      mensaje.add({"message": x});
+    }else{
+      String x = ("su orden esta completa, desea agregar otra orden?");
+      hablar(x);
+      mensaje.add({"message": x});
+    }
+
+  }
+
+  String faltantePedido(int e){
+    if (e == 0){
+      return "Que tipo de pollo desea?";
+    }else if(e==1){
+      return "Me confirma la cantidad por favor?";
+    }else if(e==2){
+      return "puede escoger la presa por favor";
+    }else if(e==3){
+      return "Cual de nuestras salsas desea?";
+    }
+    return "";
+  }
+
+  void hablar(String x)async{
+    final FlutterTts flutterTts = FlutterTts();
+    flutterTts.setLanguage('es-ES');
+    flutterTts.speak(x);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Voz a audio'),
-        //title: Text('Confidence: ${(_confidence * 100.0).toStringAsFixed(1)}%'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
 
       floatingActionButton: FloatingActionButton(
-
         onPressed: _listen,
-        //child: Icon(_isListening ? Icons.mic : Icons.mic_none),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(
               Radius.circular(10),
             ),
-            color: _isListening? Colors.pink:Colors.transparent,
             boxShadow: [
               BoxShadow(
-                color: _isListening? Colors.pink:Colors.transparent,
+                color: Colors.transparent,
                 spreadRadius: 10,
                 blurRadius: 18,
                 offset: Offset(0, 0),
               )
             ]
           ),
-          child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+          child: Icon(_isListening ?Icons.mic_none:Icons.mic_off_outlined),
         ),
       ),
 
       body: Column(
         children: [
+          Container(
+            height: 180,
+            child: Card(
+              elevation: 4,
+              child: pedidoCard(_pedido["pollo"]?? "",_pedido["cantidad"]?? "",_pedido["presa"]?? "",_pedido["salsa"]?? "" )
+            ),
+          ),
           Flexible(child: ListView.builder(
             shrinkWrap: true,
             //reverse: true,
@@ -357,13 +364,6 @@ class _SpeechState extends State<Speech> {
           SizedBox(height: 90,)
         ],
       ),
-      /**body: SingleChildScrollView(
-        reverse: true,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 150.0),
-          child: Text("[$_text]")
-        ),
-      ),**/
     );
   }
 
@@ -398,59 +398,193 @@ class _SpeechState extends State<Speech> {
             ),
           ),
           SizedBox(width: 15,),
-          Flexible(child: Text(
-            sms,
-            style: TextStyle(
-                fontSize: 15
+          Flexible(child: Container(
+            margin: EdgeInsets.only(right: 10, top: 10, bottom: 10),
+            child: Text(
+              sms,
+              style: TextStyle(
+                  fontSize: 15
+              ),
             ),
           ))
         ],
       ),
     );
   }
-}
+
+  Widget pedidoCard(String _pollo, String _cantidad, String _presa, String _salsa){
+    print(_cantidad);
+    _pollo = capitalizarPrimeraLetra(_pollo);
+    _presa = capitalizarPrimeraLetra(_presa);
+    _salsa = capitalizarPrimeraLetra(_salsa);
 
 
+    bool pollo = _pollo=="";
+    bool cant = _cantidad=="";
+    bool presa = _presa=="";
+    bool salsa = _salsa=="";
 
 
-//***************************************************
-
-class Textt extends StatefulWidget {
-  const Textt({super.key});
-
-  @override
-  State<Textt> createState() => _TexttState();
-}
-
-class _TexttState extends State<Textt> {
-  final FlutterTts flutterTts = FlutterTts();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Text to speak'),),
-      body: Center(
-        child: Column(
-          children: [
-            Text('Hola, estamos probando flutter'),
-            ElevatedButton(
-              onPressed: (){
-                //print(flutterTts.getVoices.toJS);
-
-                flutterTts.setLanguage('es-ES');
-                //flutterTts.setVoice('en-US-language');
-                flutterTts.speak('Hola, estamos probando flutter');
-              },
-              child: Text('Speak'),
+    return Row(
+      children: [
+        Container(
+          margin: EdgeInsets.only(top: 10,bottom: 10),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(
+                topRight: Radius.circular(10.0),
+                bottomRight: Radius.circular(10.0)
             ),
-          ],
+            child: Image.asset(
+               _pedido["pollo"]==""? 'assets/none.png':'assets/${_pedido["pollo"]}.png' ,
+              fit: BoxFit.cover,
+              width: 170,
+              height: 170,
+            ),
+
+          ),
         ),
-      ),
+        Container(
+          margin: EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Text(
+                pollo ?'TipoPollo':_pollo,
+                style: TextStyle(
+                    fontSize: 18,
+                    color: pollo?Colors.grey:Colors.black,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              Text(
+              cant ?'Cantidad: XX':'Cantidad: $_cantidad',
+              style: TextStyle(
+
+                color: cant?Colors.grey:Colors.black,
+
+              ),
+            ),
+
+
+              Text(
+                    presa ?'Presa: ----':'Presa: $_presa',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: presa?Colors.grey:Colors.black,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+
+              Text(
+                    salsa ?'Salsa':'$_salsa',
+                    style: TextStyle(
+
+                      color: salsa?Colors.grey:Colors.black,
+
+                    ),
+                  ),
+              SizedBox(height: 15,),
+              Text(
+                cant ?'Precio: 27Bs': 'Precio: ${ 27 * int.parse(_cantidad)}Bs'  ,
+                style: TextStyle(
+                    fontSize: 17,
+                    color: pollo?Colors.grey:Colors.black,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+
+          ],),
+        )
+    ],
     );
   }
+
+  String capitalizarPrimeraLetra(String texto) {
+    if (texto.isEmpty) {
+      return texto;
+    }
+    return texto[0].toUpperCase() + texto.substring(1);
+  }
+
+  String resumen(List<Map<String, String>> total) {
+    String cad = "Su pedido es: \n";
+    int pago = 0;
+    for (var pedido in total) {
+      cad = cad + "${pedido["cantidad"]} pollo ${pedido["pollo"]} con presa ${pedido["presa"]} \n";
+      pago = pago + int.parse(pedido["cantidad"]!);
+    }
+    cad = cad + "y el total a pagar es ${pago * 27}  bolivianos. Gracias por su preferencia.";
+    _total  = [];
+    return cad;
+  }
+
+
+
+
 }
 
+
+
 //***************************************************
+
+
+//auxiliares
+
+String extraerObjetoEntreLlaves(String cadena) {
+  int indiceInicio = cadena.indexOf('{');
+
+
+  int indiceFin = -1;
+  int contadorLlaves = 0;
+  for (int i = indiceInicio; i < cadena.length; i++) {
+    if (cadena[i] == '{') {
+      contadorLlaves++;
+    } else if (cadena[i] == '}') {
+      contadorLlaves--;
+      if (contadorLlaves == 0) {
+        indiceFin = i;
+        break;
+      }
+    }
+  }
+
+  String objetoEntreLlaves = cadena.substring(indiceInicio, indiceFin + 1);
+
+  return objetoEntreLlaves;
+}
+
+Map<String, String> convertirCadenaAObjeto(String cadena) {
+  Map<String, String> objeto = {};
+
+
+  if (cadena.length == 2){return objeto;}
+
+  cadena = cadena.replaceAll('{', '').replaceAll('}', '').trim();
+
+  List<String> pares = cadena.split(', ');
+
+  for (String par in pares) {
+    List<String> partes = par.split(':');
+    String clave = partes[0].trim();
+    String valor = partes[1].trim();
+    objeto[clave] = valor;
+  }
+
+  return objeto;
+}
+
+bool todosTienenValor(Map<String, String> mapa) {
+  for (var valor in mapa.values) {
+    if (valor.isEmpty) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+
+//***************************************************
+
 
 
 
